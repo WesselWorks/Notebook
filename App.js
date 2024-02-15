@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { useState, useCallback } from 'react';
-import { StyleSheet, FlatList, Text, Button, View, TextInput, TouchableOpacity } from 'react-native';
+import { StyleSheet, FlatList, Text, Button, View, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { useFocusEffect } from '@react-navigation/native';
@@ -32,16 +32,31 @@ function HomeScreen({ navigation }) {
     }
   }
 
-  function buttonHandler() {
-    setList([...list, { key: String(list.length), value: text }]);
+  async function buttonHandler() {
+
+    if (text.trim().length === 0) {
+      return;
+    }
+
+    const newList = [...list, { key: String(list.length), value: text }];
+    setList(newList);
     setText(''); // Clear the input after adding
+  
+    // Save the updated list to AsyncStorage
+    try {
+      const jsonValue = JSON.stringify(newList);
+      await AsyncStorage.setItem('@myList', jsonValue);
+    } catch (error) {
+      // Error saving data
+      console.error("Error saving the updated list to AsyncStorage:", error);
+    }
   }
 
   useFocusEffect(
     useCallback(() => {
       loadList();
     }, [])
-  )
+  ) 
 
   return (
     <View style={styles.container}>
@@ -65,7 +80,8 @@ function HomeScreen({ navigation }) {
             onPress={() => navigation.navigate('Details', { key: item.key, value: item.value })}
             activeOpacity={0.6}
           >
-            <Text style={styles.item}>{item.value}</Text>
+            <Text style={styles.item}>
+              {item.value.length > 50 ? `${item.value.substring(0,50)}...`:item.value}</Text>
           </TouchableOpacity>
         )}
       />
@@ -110,14 +126,17 @@ function DetailsScreen({ route, navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text>Details Screen</Text>
+      <Text style={styles.noteTitle}>Note Details</Text>
       <TextInput
-        style={styles.textInput}
+        style={styles.largeTextInput}
         onChangeText={setText}
         value={text}
+        multiline={true}
       />
-      <Button title='Save Note' onPress={saveNote} />
-      <Button title='Delete Note' onPress={deleteNote} /> 
+      <View style={styles.buttonContainer}>
+        <Button title='Save Note' onPress={saveNote} />
+        <Button title='Delete Note' onPress={deleteNote} /> 
+      </View>
     </View>
   );
 }
@@ -149,6 +168,16 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     padding: 10,
   },
+  largeTextInput: {
+    minHeight: 100, 
+    borderColor: 'gray',
+    borderWidth: 1,
+    width: '80%',
+    marginBottom: 20,
+    marginTop: 20,
+    padding: 10,
+    textAlignVertical: 'top',
+  },
   buttonContainer: {
     flexDirection: 'row', 
     justifyContent: 'space-between', 
@@ -164,6 +193,10 @@ const styles = StyleSheet.create({
   },
   detailText: {
     fontSize: 13,
+  },
+  noteTitle: {
+    fontSize: 18, 
+    fontWeight: 'bold', 
   },
   noteTouchable: {
     backgroundColor: '#f0f0f0',
