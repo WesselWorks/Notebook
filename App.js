@@ -53,7 +53,11 @@ function HomeScreen({ navigation }) {
         data={list}
         keyExtractor={item => item.key}
         renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => navigation.navigate('Details', { text: item.value })}>
+          <TouchableOpacity 
+            style={styles.noteTouchable} 
+            onPress={() => navigation.navigate('Details', { text: item.value })}
+            activeOpacity={0.6}
+          >
             <Text style={styles.item}>{item.value}</Text>
           </TouchableOpacity>
         )}
@@ -106,12 +110,25 @@ const styles = StyleSheet.create({
     marginBottom: 20, // Adds some space below the buttons before the list
   },
   item: {
-    padding: 10,
-    fontSize: 18,
-    height: 44,
+    padding: 2,
+    fontSize: 13,
+    height: 27,
+    textAlign: 'center',
+    alignSelf: 'center',
+    // width: '80%',
   },
   detailText: {
-    marginTop: 20,
-    fontSize: 24,
+    fontSize: 13,
+  },
+  noteTouchable: {
+    backgroundColor: '#f0f0f0', // Light grey background
+    paddingTop: 5, // Adjust top padding
+    paddingHorizontal: 5, // Adjust horizontal padding as needed
+    borderRadius: 5, // Optional: adds rounded corners for a nicer look
+    // width: '80%', // Ensure it matches the width of your text items for consistency
+    alignSelf: 'center', // Centers the touchable within its container
+    marginBottom: 10, // Adjusts spacing between items
+    alignItems: 'center', // Center the text horizontally
+    justifyContent: 'center', // Center the text vertically
   },
 });
