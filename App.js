@@ -6,8 +6,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
-
 const Stack = createNativeStackNavigator();
 
 function HomeScreen({ navigation }) {
@@ -97,6 +95,19 @@ function DetailsScreen({ route, navigation }) {
     }
   }
 
+  async function deleteNote() {
+    try {
+      const jsonValue = await AsyncStorage.getItem('@myList');
+      let list = jsonValue != null ? JSON.parse(jsonValue) : [];
+      const filteredList = list.filter(item => item.key !== key); // Remove the note with the matching key
+      const newJsonValue = JSON.stringify(filteredList);
+      await AsyncStorage.setItem('@myList', newJsonValue);
+      navigation.goBack(); // Navigate back after deletion
+    } catch (error) {
+      // Error deleting data
+    }
+  }
+
   return (
     <View style={styles.container}>
       <Text>Details Screen</Text>
@@ -106,6 +117,7 @@ function DetailsScreen({ route, navigation }) {
         value={text}
       />
       <Button title='Save Note' onPress={saveNote} />
+      <Button title='Delete Note' onPress={deleteNote} /> 
     </View>
   );
 }
