@@ -1,9 +1,12 @@
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { StyleSheet, FlatList, Text, Button, View, TextInput, TouchableOpacity } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
 
 const Stack = createNativeStackNavigator();
 
@@ -36,6 +39,12 @@ function HomeScreen({ navigation }) {
     setText(''); // Clear the input after adding
   }
 
+  useFocusEffect(
+    useCallback(() => {
+      loadList();
+    }, [])
+  )
+
   return (
     <View style={styles.container}>
       <TextInput 
@@ -55,7 +64,7 @@ function HomeScreen({ navigation }) {
         renderItem={({ item }) => (
           <TouchableOpacity 
             style={styles.noteTouchable} 
-            onPress={() => navigation.navigate('Details', { text: item.value })}
+            onPress={() => navigation.navigate('Details', { key: item.key, value: item.value })}
             activeOpacity={0.6}
           >
             <Text style={styles.item}>{item.value}</Text>
@@ -66,12 +75,37 @@ function HomeScreen({ navigation }) {
   );
 }
 
-function DetailsScreen({ route }) {
-  const { text } = route.params;
+function DetailsScreen({ route, navigation }) {
+  const { key, value } = route.params;
+  const [text, setText] = useState(value);
+
+  async function saveNote() {
+    try {
+      const jsonValue = await AsyncStorage.getItem('@myList');
+      let list = jsonValue != null ? JSON.parse(jsonValue) : [];
+      const updatedList = list.map(item => {
+        if (item.key === key) {
+          return { ...item, value: text };
+        }
+        return item;
+      });
+      const newJsonValue = JSON.stringify(updatedList);
+      await AsyncStorage.setItem('@myList', newJsonValue);
+      navigation.goBack();
+    } catch (error) {
+      // Error saving data
+    }
+  }
+
   return (
     <View style={styles.container}>
       <Text>Details Screen</Text>
-      <Text style={styles.detailText}>{text}</Text>
+      <TextInput
+        style={styles.textInput}
+        onChangeText={setText}
+        value={text}
+      />
+      <Button title='Save Note' onPress={saveNote} />
     </View>
   );
 }
@@ -104,10 +138,10 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   buttonContainer: {
-    flexDirection: 'row', // Aligns buttons horizontally
-    justifyContent: 'space-between', // Distributes space evenly between the buttons
-    width: '80%', // Adjust as necessary to fit your layout
-    marginBottom: 20, // Adds some space below the buttons before the list
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    width: '80%', 
+    marginBottom: 20, 
   },
   item: {
     padding: 2,
@@ -115,20 +149,18 @@ const styles = StyleSheet.create({
     height: 27,
     textAlign: 'center',
     alignSelf: 'center',
-    // width: '80%',
   },
   detailText: {
     fontSize: 13,
   },
   noteTouchable: {
-    backgroundColor: '#f0f0f0', // Light grey background
-    paddingTop: 5, // Adjust top padding
-    paddingHorizontal: 5, // Adjust horizontal padding as needed
-    borderRadius: 5, // Optional: adds rounded corners for a nicer look
-    // width: '80%', // Ensure it matches the width of your text items for consistency
-    alignSelf: 'center', // Centers the touchable within its container
-    marginBottom: 10, // Adjusts spacing between items
-    alignItems: 'center', // Center the text horizontally
-    justifyContent: 'center', // Center the text vertically
+    backgroundColor: '#f0f0f0',
+    paddingTop: 5, 
+    paddingHorizontal: 5, 
+    borderRadius: 5, 
+    alignSelf: 'center', 
+    marginBottom: 10, 
+    alignItems: 'center', 
+    justifyContent: 'center', 
   },
 });
