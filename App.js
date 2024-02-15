@@ -1,70 +1,68 @@
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
-import { StyleSheet, FlatList, Text, Button, View, TextInput} from 'react-native';
+import { StyleSheet, Text, View, Button } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// Define the stack navigator
+const Stack = createNativeStackNavigator();
 
 export default function App() {
 
-  const [text, setText] = useState('')
-  const [list, setList] = useState([])
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Home">
+        <Stack.Screen 
+          name="Home"
+          component={Home} 
+        />
+        <Stack.Screen 
+          name="Details"
+          component={Details}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
 
-  async function saveList() {
-    try {
-      const jsonValue = JSON.stringify(list)
-      await AsyncStorage.setItem('@myList', jsonValue)
-    } catch (error) { }
-  }
-
-  async function loadList() {
-    try {
-      let jsonValue = await AsyncStorage.getItem('@myList')
-      if (jsonValue != null) {
-        const arr = JSON.parse(jsonValue)
-        if (arr != null) { 
-          setList(arr) 
-        }
-      }
-    } catch (error) { }
-  }
+}
 
 
-  function buttonHandler() {
-    alert('You Typed: ' + text)
-    setList(
-      [...list, {key:list.length, value:text}]
-      )
+const Home = ({ navigation, route }) => {
+
+  function goToDetailPage() {
+    navigation.navigate('Details');
   }
 
   return (
     <View style={styles.container}>
-      <TextInput style={styles.textInput} onChangeText={(text) => setText(text)}/>
-      <Button title='Press Me' onPress={buttonHandler}></Button>
-      <Button title='Save List' onPress={saveList}></Button>
-      <Button title='Load List' onPress={loadList}></Button>
+      <Text>Welcome To Home Screen</Text>
+      <Button title="Go to Details" onPress={() => navigation.navigate('Details')}/>
+    </View> 
+  );
 
-      <FlatList 
-        data={list}
-        renderItem={(note) => <Text>{note.item.value}</Text>}
-      />
+}
 
-      <StatusBar style="auto" />
+const Details = ({ navigation, route }) => {
+
+  function goToHomePage() {
+    navigation.navigate('Home');
+  }
+
+  return (
+    <View style={styles.container}>
+      <Text>Details Screen</Text>
+      <Button title="Go to Home" onPress={() => navigation.navigate('Home')}/>
     </View>
   );
-}
+};
+
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 200
-  },
-  textInput: {
-    backgroundColor: 'lightblue',
-    minWidth: 200,
+    justifyContent: 'center', 
   }
 });
