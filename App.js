@@ -6,14 +6,27 @@ import { NavigationContainer } from '@react-navigation/native';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { app, database } from './firebase';
+import { collection, addDoc } from 'firebase/firestore';
+import { useCollection } from 'react-firebase-hooks/firestore';
 
 const Stack = createNativeStackNavigator();
 
 function HomeScreen({ navigation }) {
   const [text, setText] = useState('');
   const [list, setList] = useState([]);
+  const [values, loading, error] = useCollection(collection(database, "notes"));
+  const data = values?.docs.map((doc) => ({...doc.data(), id:doc.id}))
 
-  alert(JSON.stringify(database, null, 4))
+  async function saveToFirebase(noteText) {
+    try {
+      await addDoc(collection(database, "notes"), {
+        text: text
+      });
+      console.log("Note added to Firestore successfully!");
+    } catch (error) {
+      console.error("Error adding document to Firestore:", error);
+    }
+  }
 
   async function saveList() {
     try {
@@ -53,6 +66,9 @@ function HomeScreen({ navigation }) {
       // Error saving data
       console.error("Error saving the updated list to AsyncStorage:", error);
     }
+
+    // Save the note to Firestore
+    saveToFirebase(text);
   }
 
   useFocusEffect(
