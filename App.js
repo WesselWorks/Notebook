@@ -123,7 +123,7 @@ function DetailsScreen({ route, navigation }) {
 
       // Update the note in Firestore
       const noteRef = doc(database, "notes", key);
-      await updateDoc(noteRef, { text: text }); /
+      await updateDoc(noteRef, { text: text }); 
       console.log("Note updated in Firestore successfully");
 
       navigation.goBack();
