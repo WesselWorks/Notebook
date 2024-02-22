@@ -115,10 +115,10 @@ function DetailsScreen({ route, navigation }) {
     try {
       const jsonValue = await AsyncStorage.getItem('@myList');
       let list = jsonValue != null ? JSON.parse(jsonValue) : [];
-      const filteredList = list.filter(item => item.key !== key); // Remove the note with the matching key
+      const filteredList = list.filter(item => item.key !== key); 
       const newJsonValue = JSON.stringify(filteredList);
       await AsyncStorage.setItem('@myList', newJsonValue);
-      navigation.goBack(); // Navigate back after deletion
+      navigation.goBack(); 
     } catch (error) {
       // Error deleting data
     }
