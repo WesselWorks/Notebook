@@ -6,7 +6,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { app, database } from './firebase';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, deleteDoc, doc } from 'firebase/firestore';
 import { useCollection } from 'react-firebase-hooks/firestore';
 
 const Stack = createNativeStackNavigator();
@@ -49,26 +49,25 @@ function HomeScreen({ navigation }) {
   }
 
   async function buttonHandler() {
-
     if (text.trim().length === 0) {
       return;
     }
-
-    const newList = [...list, { key: String(list.length), value: text }];
-    setList(newList);
-    setText(''); // Clear the input after adding
   
-    // Save the updated list to AsyncStorage
+    // Save the note to Firestore and get the document ID
     try {
+      const docRef = await addDoc(collection(database, "notes"), {
+        text: text
+      });
+  
+      const newList = [...list, { key: docRef.id, value: text }];
+      setList(newList);
+      setText(''); 
+
       const jsonValue = JSON.stringify(newList);
       await AsyncStorage.setItem('@myList', jsonValue);
     } catch (error) {
-      // Error saving data
-      console.error("Error saving the updated list to AsyncStorage:", error);
+      console.error("Error adding or saving", error);
     }
-
-    // Save the note to Firestore
-    saveToFirebase(text);
   }
 
   useFocusEffect(
@@ -137,6 +136,10 @@ function DetailsScreen({ route, navigation }) {
       const filteredList = list.filter(item => item.key !== key); 
       const newJsonValue = JSON.stringify(filteredList);
       await AsyncStorage.setItem('@myList', newJsonValue);
+
+      // Delete the note from Firestore
+      await deleteDoc(doc(database, "notes", key));
+
       navigation.goBack(); 
     } catch (error) {
       // Error deleting data
