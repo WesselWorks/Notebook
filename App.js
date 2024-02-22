@@ -5,12 +5,15 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { app, database } from './firebase';
 
 const Stack = createNativeStackNavigator();
 
 function HomeScreen({ navigation }) {
   const [text, setText] = useState('');
   const [list, setList] = useState([]);
+
+  alert(JSON.stringify(database, null, 4))
 
   async function saveList() {
     try {
