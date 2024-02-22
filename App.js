@@ -6,7 +6,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { app, database } from './firebase';
-import { collection, addDoc, deleteDoc, doc } from 'firebase/firestore';
+import { collection, addDoc, deleteDoc, updateDoc, doc } from 'firebase/firestore';
 import { useCollection } from 'react-firebase-hooks/firestore';
 
 const Stack = createNativeStackNavigator();
@@ -123,6 +123,12 @@ function DetailsScreen({ route, navigation }) {
       });
       const newJsonValue = JSON.stringify(updatedList);
       await AsyncStorage.setItem('@myList', newJsonValue);
+
+      // Update the note in Firestore
+      const noteRef = doc(database, "notes", key); // Get a reference to the Firestore document
+      await updateDoc(noteRef, { text: text }); // Update the document in Firestore
+      console.log("Note updated in Firestore successfully");
+
       navigation.goBack();
     } catch (error) {
       // Error saving data
