@@ -1,4 +1,3 @@
-import { StatusBar } from 'expo-status-bar';
 import { useState, useCallback } from 'react';
 import { StyleSheet, FlatList, Text, Button, View, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -33,7 +32,6 @@ function HomeScreen({ navigation }) {
       const jsonValue = JSON.stringify(list);
       await AsyncStorage.setItem('@myList', jsonValue);
     } catch (error) {
-      // Error saving data
     }
   }
 
@@ -44,11 +42,10 @@ function HomeScreen({ navigation }) {
         setList(JSON.parse(jsonValue));
       }
     } catch (error) {
-      // Error loading data
     }
   }
 
-  async function buttonHandler() {
+  async function addNote() {
     if (text.trim().length === 0) {
       return;
     }
@@ -85,9 +82,9 @@ function HomeScreen({ navigation }) {
         placeholder="Type here..."
       />
       <View style={styles.buttonContainer}>
-        <Button title='Add Note' onPress={buttonHandler} />
-        <Button title='Save List' onPress={saveList} />
-        <Button title='Load List' onPress={loadList} />
+        <Button title='Add Note' onPress={addNote} />
+        {/* <Button title='Save List' onPress={saveList} />
+        <Button title='Load List' onPress={loadList} /> */}
       </View>
       <FlatList 
         data={list}
@@ -125,13 +122,12 @@ function DetailsScreen({ route, navigation }) {
       await AsyncStorage.setItem('@myList', newJsonValue);
 
       // Update the note in Firestore
-      const noteRef = doc(database, "notes", key); // Get a reference to the Firestore document
-      await updateDoc(noteRef, { text: text }); // Update the document in Firestore
+      const noteRef = doc(database, "notes", key);
+      await updateDoc(noteRef, { text: text }); /
       console.log("Note updated in Firestore successfully");
 
       navigation.goBack();
     } catch (error) {
-      // Error saving data
     }
   }
 
@@ -148,7 +144,6 @@ function DetailsScreen({ route, navigation }) {
 
       navigation.goBack(); 
     } catch (error) {
-      // Error deleting data
     }
   }
 
@@ -183,57 +178,72 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#F9FAFB',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingTop: 40,
+    justifyContent: 'flex-start', 
+    paddingTop: 60, 
   },
   textInput: {
-    height: 40,
-    borderColor: 'gray',
+    height: 50, 
+    borderColor: '#E5E7EB', 
     borderWidth: 1,
-    width: '80%',
+    borderRadius: 12, 
+    width: '90%', 
     marginBottom: 20,
-    padding: 10,
+    padding: 15, 
+    fontSize: 16, 
+    backgroundColor: '#FFFFFF',
   },
   largeTextInput: {
-    minHeight: 100, 
-    borderColor: 'gray',
+    minHeight: 120, 
+    borderColor: '#E5E7EB',
     borderWidth: 1,
-    width: '80%',
+    width: '90%',
+    borderRadius: 12,
     marginBottom: 20,
     marginTop: 20,
-    padding: 10,
+    padding: 15,
+    fontSize: 16, 
     textAlignVertical: 'top',
+    backgroundColor: '#FFFFFF',
   },
   buttonContainer: {
     flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    width: '80%', 
+    justifyContent: 'space-around', 
+    width: '90%', 
     marginBottom: 20, 
   },
   item: {
-    padding: 2,
-    fontSize: 13,
-    height: 27,
-    textAlign: 'center',
-    alignSelf: 'center',
-  },
-  detailText: {
-    fontSize: 13,
+    fontSize: 16, 
+    backgroundColor: '#FFFFFF', 
+    borderRadius: 8, 
+    width: '90%', 
+    marginVertical: 5, 
+    textAlign: 'left', 
+    alignSelf: 'center', 
   },
   noteTitle: {
-    fontSize: 18, 
+    fontSize: 20, 
     fontWeight: 'bold', 
+    marginBottom: 20, 
   },
   noteTouchable: {
-    backgroundColor: '#f0f0f0',
-    paddingTop: 5, 
-    paddingHorizontal: 5, 
-    borderRadius: 5, 
+    backgroundColor: '#FFFFFF', 
+    paddingVertical: 10, 
+    paddingHorizontal: 15, 
+    borderRadius: 10, 
+    borderWidth: 1,
+    borderColor: '#E5E7EB', 
     alignSelf: 'center', 
-    marginBottom: 10, 
-    alignItems: 'center', 
-    justifyContent: 'center', 
+    marginBottom: 20, 
+    width: '100%', 
+    shadowColor: "#000", 
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.18,
+    shadowRadius: 2,
+    elevation: 2, 
   },
 });
