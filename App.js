@@ -53,8 +53,7 @@ function HomeScreen({ navigation }) {
     if (text.trim().length === 0) {
       return;
     }
-  
-    // Save the note to Firestore and get the document ID
+    
     try {
       const docRef = await addDoc(collection(database, "notes"), {
         text: text
@@ -159,7 +158,6 @@ function DetailsScreen({ route, navigation }) {
       const newJsonValue = JSON.stringify(updatedList);
       await AsyncStorage.setItem('@myList', newJsonValue);
 
-      // Update the note in Firestore
       const noteRef = doc(database, "notes", key);
       await updateDoc(noteRef, { text: text }); 
       console.log("Note updated in Firestore successfully");
@@ -177,7 +175,6 @@ function DetailsScreen({ route, navigation }) {
       const newJsonValue = JSON.stringify(filteredList);
       await AsyncStorage.setItem('@myList', newJsonValue);
 
-      // Delete the note from Firestore
       await deleteDoc(doc(database, "notes", key));
 
       navigation.goBack(); 
