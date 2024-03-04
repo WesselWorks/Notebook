@@ -195,13 +195,13 @@ function DetailsScreen({ route, navigation }) {
         multiline={true}
       />
       <View style={styles.buttonContainer}>
-        <Image source={{uri: imagePath}} style={{width: 200, height: 200}} />
-        <Button title="Hent billede" onPress={getImage} />
-        <Button title="Upload billede" onPress={uploadImage} />
-        <Button title="Download billede" onPress={downloadImage} />
         <Button title='Save Note' onPress={saveNote} />
-        <Button title='Delete Note' onPress={deleteNote} /> 
+        <Button title='Delete Note' onPress={deleteNote} />
+        <Button title="Choose Image" onPress={getImage} />
+        <Button title="Upload Image" onPress={uploadImage} />
+        <Button title="Download Image" onPress={downloadImage} /> 
       </View>
+      <Image source={{uri: imagePath}} style={{width: 200, height: 200}} />
     </View>
   );
 }
