@@ -1,12 +1,16 @@
-import { useState, useCallback } from 'react';
-import { StyleSheet, FlatList, Text, Button, View, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { StatusBar } from 'expo-status-bar';
+import { StyleSheet, FlatList, Text, Button, View, TextInput, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { app, database } from './firebase';
+import { app, database, storage } from './firebase';
 import { collection, addDoc, deleteDoc, updateDoc, doc } from 'firebase/firestore';
 import { useCollection } from 'react-firebase-hooks/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import * as ImagePicker from 'expo-image-picker';
+
 
 const Stack = createNativeStackNavigator();
 
@@ -107,6 +111,40 @@ function HomeScreen({ navigation }) {
 function DetailsScreen({ route, navigation }) {
   const { key, value } = route.params;
   const [text, setText] = useState(value);
+  const [imagePath, setImagePath] = useState(null)
+
+  async function getImage() {
+    const resultat = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true
+    })
+    if(!resultat.canceled){
+      console.log(`Det hentede billede er: `+ resultat)
+      setImagePath(resultat.assets[0].uri)
+    }
+  }
+
+  async function uploadImage() {
+    if (imagePath && key) { 
+      const response = await fetch(imagePath);
+      const blob = await response.blob();
+      
+      const filename = `${key}.jpg`; 
+      
+      const storageRef = ref(storage, filename);
+      uploadBytes(storageRef, blob).then(() => {
+        console.log("Image uploaded with the note's ID as filename");
+      }).catch((error) => {
+        console.error("Upload failed", error);
+      });
+    }
+  }
+
+  async function downloadImage() {
+    await getDownloadURL(ref(storage, `${key}.jpg`))
+    .then((url) => {
+      setImagePath(url)
+    })
+  }
 
   async function saveNote() {
     try {
@@ -157,6 +195,10 @@ function DetailsScreen({ route, navigation }) {
         multiline={true}
       />
       <View style={styles.buttonContainer}>
+        <Image source={{uri: imagePath}} style={{width: 200, height: 200}} />
+        <Button title="Hent billede" onPress={getImage} />
+        <Button title="Upload billede" onPress={uploadImage} />
+        <Button title="Download billede" onPress={downloadImage} />
         <Button title='Save Note' onPress={saveNote} />
         <Button title='Delete Note' onPress={deleteNote} /> 
       </View>
