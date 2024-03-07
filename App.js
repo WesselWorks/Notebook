@@ -182,6 +182,21 @@ function DetailsScreen({ route, navigation }) {
     }
   }
 
+  async function launchCamera() {
+    const result = await ImagePicker.requestCameraPermissionsAsync()
+    if(result.granted === false) {
+      console.log("ikke tilladt")
+    } else {
+      ImagePicker.launchCameraAsync({
+        quality:1 // fra 0.0 til 1.0
+      })
+      .then((response)=>{
+        console.log("billede ankommet" + response)
+        setImagePath(response.assets[0].uri) // der hvor billedet er gemt 
+      })
+    }
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.noteTitle}>Note Details</Text>
@@ -194,9 +209,14 @@ function DetailsScreen({ route, navigation }) {
       <View style={styles.buttonContainer}>
         <Button title='Save Note' onPress={saveNote} />
         <Button title='Delete Note' onPress={deleteNote} />
+      </View>
+      <View style={styles.buttonContainer}>
         <Button title="Choose Image" onPress={getImage} />
         <Button title="Upload Image" onPress={uploadImage} />
         <Button title="Download Image" onPress={downloadImage} /> 
+      </View>
+      <View style={styles.buttonContainer}>
+        <Button title='Open Camera' onPress={launchCamera} />
       </View>
       <Image source={{uri: imagePath}} style={{width: 200, height: 200}} />
     </View>
