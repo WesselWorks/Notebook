@@ -8,7 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { app, database, storage } from './firebase';
 import { collection, addDoc, deleteDoc, updateDoc, doc } from 'firebase/firestore';
 import { useCollection } from 'react-firebase-hooks/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import * as ImagePicker from 'expo-image-picker';
 
 
@@ -145,6 +145,19 @@ function DetailsScreen({ route, navigation }) {
     })
   }
 
+  async function deleteImage() {
+    if (!imagePath) return; // If there's no image path, simply return.
+  
+    const storageRef = ref(storage, `${key}.jpg`);
+  
+    deleteObject(storageRef).then(() => {
+      console.log("Image deleted successfully");
+      setImagePath(null); // Remove the image path to update UI accordingly.
+    }).catch((error) => {
+      console.error("Error deleting image", error);
+    });
+  }
+
   async function saveNote() {
     try {
       const jsonValue = await AsyncStorage.getItem('@myList');
@@ -217,6 +230,7 @@ function DetailsScreen({ route, navigation }) {
       </View>
       <View style={styles.buttonContainer}>
         <Button title='Open Camera' onPress={launchCamera} />
+        <Button title='Delete Image' onPress={deleteImage} />
       </View>
       <Image source={{uri: imagePath}} style={{width: 200, height: 200}} />
     </View>
