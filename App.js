@@ -9,6 +9,7 @@ import { app, database, storage } from './firebase';
 import { collection, addDoc, deleteDoc, updateDoc, doc } from 'firebase/firestore';
 import { useCollection } from 'react-firebase-hooks/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import MapView from 'react-native-maps';
 import * as ImagePicker from 'expo-image-picker';
 
 
